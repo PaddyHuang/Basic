@@ -48,17 +48,17 @@ NewFile(){
 		1) 	read -p "Name: " name
 			read -p "Description: " description
 			cd $root/Languages/C\+\+/; touch $name.cpp
-			echo "/*\nAuthor: Paddy Huang\nDate: $(date +"%Y-%m-%d %H:%M:%S")\nDescription: $description\n*/\n#include <iostream>\n" > $name.cpp
+			echo "/*\nAuthor: Paddy Huang\nDate: $(date +"%Y-%m-%d %H:%M:%S")\nDescription: $description\n*/\n#include <iostream>\nusing namespace std;\n\n/*\nFunction: description\nPara: parameters\nReturn: return\n*/\n" > $name.cpp
 			cd $root; vim $root/Languages/C\+\+	;;
 		2) 	read -p "Name: " name
 			read -p "Description: " description
 			cd $root/Languages/Python/; touch $name.py
-			echo "#!/usr/bin/python3\n'''\nAuthor: Paddy Huang\nDate: $(date +"%Y-%m-%d %H:%M:%S")\nDescription: $description\n'''\n" > $name.py
+			echo "#!/usr/bin/python3\n'''\nAuthor: Paddy Huang\nDate: $(date +"%Y-%m-%d %H:%M:%S")\nDescription: $description\n'''\n\n'''\nFunction: description\nPara: parameters\nReturn: return\n'''\n" > $name.py
 			cd $root; vim $root/Languages/Python	;;
 		3)	read -p "Name: " name
 			read -p "Description: " description
 			cd $root/Languages/Lua/; touch $name.lua
-			echo "-- [Author: Paddy Huang]\n-- [Date: $(date +"%Y-%m-%d %H:%M:%S")]\n-- [Description: $description]\n" > $name.lua
+			echo "-- [Author: Paddy Huang]\n-- [Date: $(date +"%Y-%m-%d %H:%M:%S")]\n-- [Description: $description]\n\n--[[\nFunction: description\nPara: parameters\nReturn: return\n--]]\n" > $name.lua
 			cd $root; vim $root/Languages/Lua	;;
 
 		*)	;;
