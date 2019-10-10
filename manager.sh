@@ -43,6 +43,7 @@ NewFile(){
 	echo "1. C++"
 	echo "2. Python"
 	echo "3. Lua"
+	echo "0. Cancel"
 	read -p "Choose: " type
 	case $type in
 		1) 	read -p "Name: " name
