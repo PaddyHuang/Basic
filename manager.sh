@@ -1,6 +1,7 @@
 #!/bin/sh
 
-root=/home/pi/Documents/Basic
+# root=/home/pi/Documents/Basic	# Raspian
+root=/Users/Polin/Development/Basic # macOS
 cd $root
 
 Menu(){
@@ -36,20 +37,32 @@ GitControl(){
 	git add .; git commit -m "$info"; git push
 }
 
-# 3. New files.
-NewFiles(){
-	echo "# 3. New files:"
+# 3. New files
+NewFile(){
+	echo "# 3. New files."
 	echo "1. C++"
-	read -p "Choose: " types
-	case $types in
-		1)	read -p "Name: " name
+	echo "2. Python"
+	echo "3. Lua"
+	read -p "Choose: " type
+	case $type in
+		1) 	read -p "Name: " name
+			read -p "Description: " description
 			cd $root/Languages/C\+\+/; touch $name.cpp
-			createdDay < date
-			echo createdDay
-			echo "/*------ Description ------\nAuthor: Paddy Huang\n*/" > $name.cpp	;;
+			echo "/*\nAuthor: Paddy Huang\nDate: $(date +"%Y-%m-%d %H:%M:%S")\nDescription: $description\n*/\n#include <iostream>\nusing namespace std;\n\n/*\nFunction: description\nPara: parameters\nReturn: return\n*/\n" > $name.cpp
+			cd $root; vim $root/Languages/C\+\+	;;
+		2) 	read -p "Name: " name
+			read -p "Description: " description
+			cd $root/Languages/Python/; touch $name.py
+			echo "#!/usr/bin/python3\n'''\nAuthor: Paddy Huang\nDate: $(date +"%Y-%m-%d %H:%M:%S")\nDescription: $description\n'''\n\n'''\nFunction: description\nPara: parameters\nReturn: return\n'''\n" > $name.py
+			cd $root; vim $root/Languages/Python	;;
+		3)	read -p "Name: " name
+			read -p "Description: " description
+			cd $root/Languages/Lua/; touch $name.lua
+			echo "-- [Author: Paddy Huang]\n-- [Date: $(date +"%Y-%m-%d %H:%M:%S")]\n-- [Description: $description]\n\n--[[\nFunction: description\nPara: parameters\nReturn: return\n--]]\n" > $name.lua
+			cd $root; vim $root/Languages/Lua	;;
+
 		*)	;;
 	esac
-
 }
 
 # 0. Exit
