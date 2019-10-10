@@ -1,14 +1,14 @@
 #!/bin/sh
 
 # root=/home/pi/Documents/Basic	# Raspian
-root=/Users/Polin/Development/Basic
+root=/Users/Polin/Development/Basic # macOS
 cd $root
 
 Menu(){
 	echo "######--Menu--######"
 	echo "# 1. Browse Direstories."
 	echo "# 2. Git add & commit & push."
-	echo "# 3. New files."
+	echo "# 3. New file."
 	echo "# 0. Exit"
 	echo "######--Menu--######"
 }
@@ -80,7 +80,7 @@ do
 	case $option in
 		1)	BrowseDirectories;;
 		2)	GitControl;;
-		3)	NewFile;;
+		3)	NewFiles;;
 		0)	Exit;;
 		*)	clear; echo "No Options";;
 	esac
