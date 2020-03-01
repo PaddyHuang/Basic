@@ -17,7 +17,7 @@ int main(int argc, const char * argv[]) {
     SeqList list;
     InitSeqList(&list);
     
-//    InsertElem(&list, 0, 123);
+    InsertElem(&list, 0, 123);
     
     
     PrintList(&list);

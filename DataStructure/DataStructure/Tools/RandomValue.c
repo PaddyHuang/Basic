@@ -9,7 +9,7 @@
 #include "RandomValue.h"
 
 void InitSrand(void){
-    srand(time(NULL));
+//    srand(time(NULL));
 }
 
 // Get a random value from 0 to n,
