@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 '''
 Author: Paddy Huang
 Date: 2019-10-06 22:28:45
