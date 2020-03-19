@@ -1,82 +1,62 @@
-#import tkinter
+#!/usr/local/bin/python3
 from tkinter import *
-import ctypes
+import time
+import os
 
-class Alarm:
-	clock = ctypes.cdll.LoadLibrary('./Alarm.so')
-	startHour = startMin = startSec =  0
-	stopHour = stopMin = stopSec =  0
-	app = Tk()
+def Confirm(a, b, c):
+	# print(secondEntry.get())
+	stopHour = int(a.get())
+	stopMin = int(b.get())
+	stopSec = int(c.get())
+	target = stopHour * 10000 + stopMin * 100 + stopSec
+	print(target)
+	while True: 
+		now = time.strftime('%H:%M:%S', time.localtime())
+		now = now.split(':')
+		hour, minute, second = now[0], now[1], now[2]
+		now = int(hour) * 10000 + int(minute) * 100 + int(second)
+		# print(now)
+		time.sleep(0.9)
+
+		if now >= target:
+			os.system('iina ./MySoul.mp3')
+			#print('\a')
+			exit(0)
 	
-	startFrame = Frame(app)
-	startLabel = Label(startFrame, bg = 'black', fg = 'white', text = 'Start Time ')
-	hour1 = Label(startFrame, bg = 'black', fg = 'white', text = 'Hour: ')
-	hourEntry1 = Entry(startFrame, bd = 5)
-	minute1 = Label(startFrame, bg = 'black', fg = 'white', text = 'Minute: ')
-	minuteEntry1 = Entry(startFrame, bd = 5)
-	second1 = Label(startFrame, bg = 'black', fg = 'white', text = 'Second: ')
-	secondEntry1 = Entry(startFrame, bd = 5)
+
+def main():
+	app = Tk()
 	
 	stopFrame= Frame(app)
 	stopLabel = Label(stopFrame, bg = 'black', fg = 'white', text = 'Stop Time ')
-	hour2 = Label(stopFrame, bg = 'black', fg = 'white', text = 'Hour: ')
-	hourEntry2 = Entry(stopFrame, bd = 5)
-	minute2 = Label(stopFrame, bg = 'black', fg = 'white', text = 'Minute: ')
-	minuteEntry2 = Entry(stopFrame, bd = 5)
-	second2 = Label(stopFrame, bg = 'black', fg = 'white', text = 'Second: ')
-	secondEntry2 = Entry(stopFrame, bd = 5)
+	hour = Label(stopFrame, bg = 'black', fg = 'white', text = 'Hour: ')
+	hourEntry = Entry(stopFrame, bd = 5, bg = 'black', fg = 'white')
+	minute = Label(stopFrame, bg = 'black', fg = 'white', text = 'Minute: ')
+	minuteEntry = Entry(stopFrame, bd = 5, bg = 'black', fg = 'white')
+	second = Label(stopFrame, bg = 'black', fg = 'white', text = 'Second: ')
+	secondEntry = Entry(stopFrame, bd = 5, bg = 'black', fg = 'white')
+	button = Button(app, bg = 'black', fg = 'blue', text = 'Confirm', command = lambda : Confirm(hourEntry, minuteEntry, secondEntry))
 
-	def __init__(self):
-		self.app.title('Tiny Alarm')
-		#app.geometry('400x300')
+	app.title('Tiny Alarm')
+	#app.geometry('400x300')
 
-		# Start Frame
-		self.startFrame.pack()
-		self.startLabel.pack(side = LEFT)
+	# Stop Frame
+	stopFrame.pack()
+	stopLabel.pack(side = LEFT)
 
-		self.hour1.pack(side = LEFT)
-		self.hourEntry1.pack(side = LEFT)
+	hour.pack(side = LEFT)
+	hourEntry.pack(side = LEFT)
 
-		self.minute1.pack(side = LEFT)
-		self.minuteEntry1 .pack(side = LEFT)
+	minute.pack(side = LEFT)
+	minuteEntry.pack(side = LEFT)
 
-		self.second1.pack(side = LEFT)
-		self.secondEntry1.pack(side = LEFT)
+	second.pack(side = LEFT)
+	secondEntry.pack(side = LEFT)
 
-		# Stop Frame
-		self.stopFrame.pack()
-		self.stopLabel.pack(side = LEFT)
+	button.pack()
 
-		self.hour2.pack(side = LEFT)
-		self.hourEntry2.pack(side = LEFT)
+	app.configure(bg = 'black')
+	app.mainloop()
 
-		self.minute2.pack(side = LEFT)
-		self.minuteEntry2.pack(side = LEFT)
-
-		self.second2.pack(side = LEFT)
-		self.secondEntry2.pack(side = LEFT)
-
-		self.button.pack()
-
-		# app.configure(bg = 'black')
-		self.app.mainloop()
-
-	def Confirm(self):
-		# print(secondEntry1.get())
-		self.startHour = int(self.hourEntry1.get())
-		self.startMin = int(self.minuteEntry1.get())
-		self.startSec = int(self.secondEntry1.get())
-		self.stopHour = int(self.hourEntry2.get())
-		self.stopMin = int(self.minuteEntry2.get())
-		self.stopSec = int(self.secondEntry2.get())
-		self.clock.SetClock(self.startHour, self.startMin, self.startSec, self.stopHour, self.stopMin, self.stopSec)
-	
-	button = Button(app, bg = 'black', fg = 'white', text = 'Confirm', command = Confirm)
-
-
-def main():
-	alarm = Alarm()
-
-	
 if __name__ == '__main__':
 	main()
