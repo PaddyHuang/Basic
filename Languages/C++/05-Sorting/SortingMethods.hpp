@@ -69,7 +69,7 @@ class SortingMethods{
 			while(i <= mid) temp[k++] = array[i++];
 			while(j <= right) temp[k++] = array[j++];
 
-			mencpy(&array[left], temp, k * sizeof(T));
+			memcpy(&array[left], temp, k * sizeof(T));
 			return;
 		}
 
@@ -105,6 +105,73 @@ class SortingMethods{
 				div *= 10;
 			return value / div % 10;
 		}
+
+		void rradixSort_MSD(T *array, int begin, int end, int digit){
+			if(array == NULL) return;
+			if(begin >= end) return;
+			if(digit< 1) return;
+
+			T start[10];
+			T count[10] = {0};
+			T *temp = (T*)calloc(end - begin + 1, sizeof(T));
+
+			for(int i = begin; i <= end; i++)
+				count[getReminder(array[i], digit)]++;
+			
+			memcpy(start, count, sizeof(start));
+			
+			// 求右边界
+			for(int i = 1; i < 10; i++)
+				start[i] += start[i - 1];
+			
+			for(int i = end; i >= begin; i--){
+				int reminder = getReminder(array[i], digit);
+				int index = start[reminder];
+				temp[index - 1] = array[i];
+				start[reminder]--;
+			}
+
+			memcpy(&array[begin], temp, (end - begin + 1) * sizeof(T));
+
+			for(int i = 0; i < 10; i++)
+				if(count[i] > 1)
+					rradixSort_MSD(array, start[i], start[i] + count[i] - 1, digit - 1);
+			return;
+		}
+
+		void rradixSort_MSD_Reverse(T *array, int begin, int end, int digit){
+			if(array == NULL) return;
+			if(begin >= end) return;
+			if(digit < 1) return;
+
+			T start[10];
+			T count[10] = {0};
+			T *temp = (T*)calloc(end - begin + 1, sizeof(T));
+
+			for(int i = begin; i <= end; i++)
+				count[getReminder(array[i], digit)]++;
+
+			memcpy(start, count, sizeof(start));
+
+			// 求右边界
+			for(int i = 8; i >= 0; i--)
+				start[i] += start[i + 1];
+
+			for(int i = end; i >= begin; i--){
+				int reminder = getReminder(array[i], digit);
+				int index = start[reminder];
+				temp[index - 1] = array[i];
+				start[reminder]--;
+			}
+
+			memcpy(&array[begin], temp, (end - begin + 1) * sizeof(T));
+
+			for(int i = 0; i < 10; i++)
+				if(count[i] > 1)
+					rradixSort_MSD_Reverse(array, start[i], start[i] + count[i] - 1, digit - 1);
+			return;
+		}
+
 };
 
 template<class T>
@@ -205,7 +272,7 @@ void SortingMethods<T>::MergeSort(T *array, int length){
 	T *temp = (T*)calloc(length, sizeof(T));
 	mmergeSort(array, 0, length - 1, temp);
 
-	mencpy(array, temp, sizeof(T) * length);
+	memcpy(array, temp, sizeof(T) * length);
 
 	free(temp);
 	return;
@@ -269,11 +336,22 @@ void SortingMethods<T>::RadixSort_LSD_Reverse(T *array, int length){
 
 template<class T>
 void SortingMethods<T>::RadixSort_MSD(T *array, int length){
+	if(array == NULL) return;
+	if(length <= 1) return;
 
+	int digit = getMaxDigit(array, length);
+	rradixSort_MSD(array, 0, length - 1, digit);
+	return;
 }
 
 template<class T>
 void SortingMethods<T>::RadixSort_MSD_Reverse(T *array, int length){
+	if(array == NULL) return;
+	if(length <= 1) return;
 
+	int digit = getMaxDigit(array, length);
+	rradixSort_MSD_Reverse(array, 0, length - 1, digit);
+	return;
 }
+
 #endif
