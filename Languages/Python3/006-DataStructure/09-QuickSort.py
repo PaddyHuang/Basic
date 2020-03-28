@@ -13,7 +13,8 @@ def quick_sort(array, left: int, right: int):
 		return
 	length = right - left
 	index = random.randint(0, length) + left	# 使用随机元素作为哨兵
-	swap(array[left], array[index])					# 将第一个元素作为哨兵
+#	swap(array[left], array[index])					# 将第一个元素作为哨兵
+	array[left], array[index] = array[index], array[left]	# 闭包交换
 
 	key, i, j = array[left], left, right
 	while(i < j):
@@ -33,7 +34,7 @@ def generate(length: int) -> list:
 	return list
 
 if __name__ == '__main__':
-	array = generate(1000)
+	array = generate(10)
 	for i in array: print(i)
 	print()
 	quick_sort(array, 0, len(array) - 1)
