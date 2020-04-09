@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 
 # Python3 source files are decoded on UTF-8 in default and all string are Unicode.
 
