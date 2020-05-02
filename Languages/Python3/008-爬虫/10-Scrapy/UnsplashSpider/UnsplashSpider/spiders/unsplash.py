@@ -5,7 +5,7 @@ import scrapy
 class UnsplashSpider(scrapy.Spider):
     name = 'unsplash'
     allowed_domains = ['unsplash.com']
-    start_urls = ['https://unsplash.com/s/photos/illustration']
+    start_urls = ['https://unsplash.com/s/photos/illustration/']
 
     def start(self):
         self.cookie = {
@@ -31,9 +31,9 @@ class UnsplashSpider(scrapy.Spider):
             self.log('Main site Failed.')
 
     def parse(self, response):
-        filename = response.url
-        self.log(filename)
-#        with open(filename, 'wb') as f:
-#            f.write(response.body)
-
-        self.log(response.xpath('//div[@class = "_2zEKzb"]'))
+        filename = './text.html'
+        # self.log(filename)
+        with open(filename, 'wb') as f:
+           f.write(response.body)
+        # self.log(response.body)
+        self.log(response.xpath('./img@srcSet'))
