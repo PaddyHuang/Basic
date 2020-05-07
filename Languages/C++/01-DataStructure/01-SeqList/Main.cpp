@@ -5,18 +5,23 @@
 #include "SeqList.hpp"
 using namespace std;
 
-// 测试函数
+// Test Methods
 int main(void){
-	SeqList<char> l;	// 声明一个顺序表
-	for (int i = 0; i < 10000 - 1; i++)
-		l.InsertSeqListAtRear('a');
-	for(int i = 0; i < 10000; i++){
-		l.InsertSeqList(50, 's');
-		l.DeleteElem(50);
-	}
+	SeqList<char> list;	// Declare a sequense list
+  // Test 10k insert & delete
+//	for (auto i = 0; i < 10000 - 1; i++)
+//		list.InsertSeqListAtRear('a');
+//	for(auto i = 0; i < 10000; i++){
+//		list.InsertSeqList(50, 's');
+//		list.DeleteElem(50);
+//	}
 
-	// int i;
-	// cout << "1.创建一个顺序表	2.遍历顺序表		3.通过下标获取元素\n4.查找要查询的元素的下标5.通过下标插入元素	6.通过下标删除一个元素\n7.获取顺序表的长度	8.删除所有元素		9.判断顺序表是否为空\n10.判断顺序表是否满	11.根据数据删除节点	12.在头部插入数据\n13.在头部删除数据	14.在顺序表最后插入数据	0.退出" << endl;
+  int i;
+	cout << "1. Create a list \t\t 2. Traverse list \t\t 3. Check element by index \n"
+      << "4. Check index by element \t 5. Insert element by index \t 6. Delete element by index \n"
+      << "7. Get list length \t\t 8. Delete all element \t\t 9. List is empty? \n"
+      << "10. List is full? \t\t 11. Delete element by value \t 12. Insert element at head \n"
+      << "13. Delete element at head \t 14. Insert element at rear \t 0. Exit" << endl;
 	// do
 	// {
 	// 	cout << "请选择一个操作: " ;
