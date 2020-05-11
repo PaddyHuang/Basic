@@ -1,0 +1,9 @@
+# C++
+*.o
+*.out
+
+# Folders
+.vscode/
+
+# Hided files
+.DS_Store
