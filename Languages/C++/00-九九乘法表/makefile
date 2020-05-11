@@ -1,7 +1,7 @@
-all: Table
+all: Table.out
 
-Table: Table.o
-	g++ Table.o -o Table
+Table.out: Table.o
+	g++ Table.o -o Table.out
 
 Table.o: Table.cpp
 	g++ -c Table.cpp -o Table.o
