@@ -1,2 +1,2 @@
 # Basic
-Basic Knowledge Accumulate
+Basic Knowledge Accumulation
