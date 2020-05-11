@@ -2,7 +2,8 @@
 import os
 
 root = '/Users/Polin/Documents/blog'
-os.chdir(root)
-os.system('open -a "/Applications/Utilities/Terminal.app" ' + root)
-os.system('code ' + root)
+os.system('cd ' + root)
+# os.chdir(root)
+# os.system('open -a "/Applications/Utilities/Terminal.app" ' + root)
+# os.system('code ' + root)
 

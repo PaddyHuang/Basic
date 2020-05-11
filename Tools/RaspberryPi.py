@@ -16,7 +16,7 @@ def Menu():
 				ID : pi
 				Password: abc56pp2ab
 				Local IP: 192.168.1.21:22
-				Global IP: s21.natfrp.org -p 63576"
+                                Global IP: cn-cd-dx.sakurafrp.com -p 37700
 				'''
 			print(info)
 		elif options == '2':
@@ -24,10 +24,9 @@ def Menu():
 			system('ssh pi@192.168.1.21')
 		elif options == '3':
 			print('Global Raspberry Pi launching...')
-			system('ssh pi@s21.natfrp.org -p 63576')
+			system('ssh pi@cn-cd-dx.sakurafrp.com -p 37700')
 		else:
 			print("No options")
-			
 	return
 
 def main():
