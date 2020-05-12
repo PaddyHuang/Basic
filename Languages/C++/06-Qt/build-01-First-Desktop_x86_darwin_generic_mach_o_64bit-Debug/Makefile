@@ -53,9 +53,13 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../01-First/main.cpp \
-		../01-First/widget.cpp moc_widget.cpp
+		../01-First/mypushbtn.cpp \
+		../01-First/widget.cpp moc_mypushbtn.cpp \
+		moc_widget.cpp
 OBJECTS       = main.o \
+		mypushbtn.o \
 		widget.o \
+		moc_mypushbtn.o \
 		moc_widget.o
 DIST          = /usr/local/Cellar/qt/5.14.2/mkspecs/features/spec_pre.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/qdevice.pri \
@@ -237,6 +241,7 @@ DIST          = /usr/local/Cellar/qt/5.14.2/mkspecs/features/spec_pre.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/qt_config.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/macx-clang/qmake.conf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/spec_post.prf \
+		../01-First/.qmake.stash \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/exclusive_builds.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/mac/sdk.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/toolchain.prf \
@@ -265,7 +270,9 @@ DIST          = /usr/local/Cellar/qt/5.14.2/mkspecs/features/spec_pre.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/exceptions.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/yacc.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/lex.prf \
-		../01-First/01-First.pro ../01-First/widget.h ../01-First/main.cpp \
+		../01-First/01-First.pro ../01-First/mypushbtn.h \
+		../01-First/widget.h ../01-First/main.cpp \
+		../01-First/mypushbtn.cpp \
 		../01-First/widget.cpp
 QMAKE_TARGET  = 01-First
 DESTDIR       = 
@@ -469,6 +476,7 @@ Makefile: ../01-First/01-First.pro /usr/local/Cellar/qt/5.14.2/mkspecs/macx-clan
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/qt_config.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/macx-clang/qmake.conf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/exclusive_builds.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/mac/sdk.prf \
 		/usr/local/Cellar/qt/5.14.2/mkspecs/features/toolchain.prf \
@@ -682,6 +690,7 @@ Makefile: ../01-First/01-First.pro /usr/local/Cellar/qt/5.14.2/mkspecs/macx-clan
 /usr/local/Cellar/qt/5.14.2/mkspecs/features/qt_config.prf:
 /usr/local/Cellar/qt/5.14.2/mkspecs/macx-clang/qmake.conf:
 /usr/local/Cellar/qt/5.14.2/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /usr/local/Cellar/qt/5.14.2/mkspecs/features/exclusive_builds.prf:
 /usr/local/Cellar/qt/5.14.2/mkspecs/features/mac/sdk.prf:
 /usr/local/Cellar/qt/5.14.2/mkspecs/features/toolchain.prf:
@@ -744,8 +753,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/local/Cellar/qt/5.14.2/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../01-First/widget.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../01-First/main.cpp ../01-First/widget.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../01-First/mypushbtn.h ../01-First/widget.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../01-First/main.cpp ../01-First/mypushbtn.cpp ../01-First/widget.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -755,6 +764,7 @@ clean: compiler_clean
 
 distclean: clean 
 	-$(DEL_FILE) -r 01-First.app
+	-$(DEL_FILE) .qmake.stash
 	-$(DEL_FILE) Makefile
 
 
@@ -779,9 +789,16 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/local/Cellar/qt/5.14.2/mkspecs/features/data/dummy.cpp
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -pipe -stdlib=libc++ -g -std=gnu++11 $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -mmacosx-version-min=10.13 -Wall -Wextra -dM -E -o moc_predefs.h /usr/local/Cellar/qt/5.14.2/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_widget.cpp
+compiler_moc_header_make_all: moc_mypushbtn.cpp moc_widget.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_widget.cpp
+	-$(DEL_FILE) moc_mypushbtn.cpp moc_widget.cpp
+moc_mypushbtn.cpp: ../01-First/mypushbtn.h \
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/QPushButton \
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qpushbutton.h \
+		moc_predefs.h \
+		/usr/local/Cellar/qt/5.14.2/bin/moc
+	/usr/local/Cellar/qt/5.14.2/bin/moc $(DEFINES) --include /Users/Polin/Documents/Basic/Languages/C++/06-Qt/build-01-First-Desktop_x86_darwin_generic_mach_o_64bit-Debug/moc_predefs.h -I/usr/local/Cellar/qt/5.14.2/mkspecs/macx-clang -I/Users/Polin/Documents/Basic/Languages/C++/06-Qt/01-First -I/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers -I/usr/local/Cellar/qt/5.14.2/lib/QtGui.framework/Headers -I/usr/local/Cellar/qt/5.14.2/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include -F/usr/local/Cellar/qt/5.14.2/lib ../01-First/mypushbtn.h -o moc_mypushbtn.cpp
+
 moc_widget.cpp: ../01-First/widget.h \
 		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/QWidget \
 		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qwidget.h \
@@ -814,10 +831,23 @@ main.o: ../01-First/main.cpp ../01-First/widget.h \
 		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../01-First/main.cpp
 
+mypushbtn.o: ../01-First/mypushbtn.cpp ../01-First/mypushbtn.h \
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/QPushButton \
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qpushbutton.h \
+		/usr/local/Cellar/qt/5.14.2/lib/QtCore.framework/Headers/QDebug \
+		/usr/local/Cellar/qt/5.14.2/lib/QtCore.framework/Headers/qdebug.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mypushbtn.o ../01-First/mypushbtn.cpp
+
 widget.o: ../01-First/widget.cpp ../01-First/widget.h \
 		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/QWidget \
-		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qwidget.h
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qwidget.h \
+		../01-First/mypushbtn.h \
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/QPushButton \
+		/usr/local/Cellar/qt/5.14.2/lib/QtWidgets.framework/Headers/qpushbutton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o widget.o ../01-First/widget.cpp
+
+moc_mypushbtn.o: moc_mypushbtn.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mypushbtn.o moc_mypushbtn.cpp
 
 moc_widget.o: moc_widget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_widget.o moc_widget.cpp
