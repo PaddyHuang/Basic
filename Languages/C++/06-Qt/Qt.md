@@ -222,3 +222,302 @@ connect(btn3, &MyPushBtn::clicked, this, &Widget::close);
 
 > 信号槽点优点：松散耦合，信号发送端和接受端，本身是没有关系的，通过connect连接，将两者结合。
 
+### 6.1 自定义信号
+
+> 总结：
+>
+> 1. 返回void；
+> 2. 需要声明，不需要实现；
+> 3. 可以有参数，可以重载。
+
+### 6.2 自定义槽函数
+
+> 总结：
+>
+> 1. 返回void；
+> 2. 需要声明，也需要实现；
+> 3. 可以有参数，可以重载；
+> 4. 可以写到public slots下或全局函数。
+
+### 6.3 触发自定义信号
+
+> emit触发自定义信号
+
+### 6.4 案例：下课后，老师触发饿了，学生响应信号，请客吃饭
+
+> 当自定义信号和槽出现重载：
+>
+> 1. 需要利用函数指针，明确指向函数地址；
+> 2. void (Teacher::*teacherSignal)(QString) = &Teacher:hungry;
+> 3. QString( .toUtf8 ) -> QByteArray( .data() ) -> char *；
+> 4. 信号可以连接信号；
+> 5. 使用disconnect断开信号连接.
+
+```cpp
+// Student.h
+#ifndef STUDENT_H
+#define STUDENT_H
+
+#include <QObject>
+
+class Student : public QObject
+{
+    Q_OBJECT
+public:
+    explicit Student(QObject *parent = nullptr);
+
+signals:
+
+public slots:
+    // 早期Qt版本，必须要写到public slots，高级版本可以写到public或全局下
+    // 返回值void，需要声明，也需要实现
+    // 可以有参数，可以重载
+    void treat();
+		void treat(QString food);
+};
+
+#endif // STUDENT_H
+```
+
+```cpp
+// Student.cpp
+#include "student.h"
+#include <QDebug>
+
+Student::Student(QObject *parent) : QObject(parent)
+{
+
+}
+
+void Student::treat(){
+    qDebug() << "Treat teacher";
+}
+void Student::treat(QString food){
+    // QString -> char *
+    // 先转成QByteArray( .toUtf8() ) 再转char * ( .data() )
+    qDebug() << "Treat teacher. The " << food.toUtf8().data() << " will be nice.";
+}
+```
+
+```cpp
+// Teacher.h
+#ifndef TEACHER_H
+#define TEACHER_H
+
+#include <QObject>
+
+class Teacher : public QObject
+{
+    Q_OBJECT
+public:
+    explicit Teacher(QObject *parent = nullptr);
+
+signals:
+    // 自定义信号，写到signals下
+    // 返回值是void，只需要声明，不需要实现
+    // 可以有参数，可以重载
+    void hungry();
+	  void hungry(QString food);
+};
+
+#endif // TEACHER_H
+```
+
+```cpp
+// Teacher.cpp
+#include "teacher.h"
+
+Teacher::Teacher(QObject *parent) : QObject(parent)
+{
+
+}
+```
+
+```cpp
+// Widget.h
+#ifndef WIDGET_H
+#define WIDGET_H
+
+#include <QWidget>
+#include "teacher.h"
+#include "student.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class Widget; }
+QT_END_NAMESPACE
+
+class Widget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    Widget(QWidget *parent = nullptr);
+    ~Widget();
+
+private:
+    Ui::Widget *ui;
+
+    Teacher * teacher;
+    Student * student;
+
+    void classIsOver();
+};
+#endif // WIDGET_H
+```
+
+```cpp
+// Widget.cpp
+#include "widget.h"
+#include "ui_widget.h"
+
+// Teacher 教师类
+// Student 学生类
+// 下课后，老师会触发一个信号，饿了，学生响应信号，请客吃饭
+
+Widget::Widget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::Widget)
+{
+    ui->setupUi(this);
+
+    // Create a  teacher
+    this->teacher = new Teacher(this);
+    // Create a student
+    this->student = new Student(this);
+
+//    // 老师饿了，学生请客
+//    connect(this->teacher, &Teacher::hungry, this->student, &Student::treat);
+//    // 调用下课函数
+//    classIsOver();
+      
+    // 连接带参数的信号和槽
+    // 函数指针 -> 函数地址
+    void (Teacher::*teacherSignal)(QString) = &Teacher::hungry;
+    void (Student::*studentSlot)(QString) = &Student::treat;
+    connect(this->teacher, teacherSignal, this->student, studentSlot);
+    classIsOver();
+      
+    // 点击一个下课的按钮，就下课
+    QPushButton *btn = new QPushButton("下课", this);
+    this->setFixedSize(400, 400);
+    // 点击按钮触发下课
+//    connect(btn, &QPushButton::clicked, this, &Widget::classIsOver);
+    // 无参信号和槽连接
+    void (Teacher::*teacherSignal2)(void) = &Teacher::hungry;
+    void (Student::*studentSlot2)(void) = &Student::treat;
+    connect(this->teacher, teacherSignal2, this->student, studentSlot2);
+    // 信号连接信号
+    connect(btn, &QPushButton::clicked, this->teacher, teacherSignal2);
+    //  断开信号
+//    disconnect(this->teacher, teacherSignal2, this->student, studentSlot2);
+      
+    // 拓展
+    // 1. 信号可以连接信号
+    // 2. 一个信号可以连接多个槽函数
+//    connect(btn, &QPushButton::clicked, this, &Widget::close);
+    // 3. 多个信号，可以连接一个槽函数
+    // 4. 信号和槽函数的参数必须一一对应
+    // 5. 信号的参数个数可以多于槽函数的参数个数
+
+    // 拓展
+    // 1. 信号可以连接信号
+    // 2. 一个信号可以连接多个槽函数
+//    connect(btn, &QPushButton::clicked, this, &Widget::close);
+    // 3. 多个信号，可以连接一个槽函数
+    // 4. 信号和槽函数的参数必须一一对应
+    // 5. 信号的参数个数可以多于槽函数的参数个数
+
+    // Qt4版本以前的信号和槽连接方式
+    // 利用Qt4信号槽，连接无参版本
+    // Qt4版本底层SIGNAL("hungry"), SLOT("treat")，以字符串函数名查找对应函数
+    connect(teacher, SIGNAL(hungry()), student, SLOT(treat()));
+    // Qt4版本优点，参数直观；缺点：类型不做检测
+    // Qt5以上，支持Qt4版本写法，反之不支持
+}
+
+Widget::~Widget()
+{
+    delete ui;
+}
+
+void Widget::classIsOver(){
+    // 下课函数，调用后，触发老师饿了的信号
+//    emit teacher->hungry();
+    emit teacher->hungry("宫保鸡丁");
+}
+```
+
+## 7. Lambda表达式(C++11)
+
+定义并创建匿名的函数对象
+
+```cpp
+    // QPushButton *btn2 = new QPushButton();
+    [btn](){
+        btn->setText("haha");
+        btn2->setText("aaaa");  // btn2看不到
+    }();
+
+    // Lambda表达式按值传递时，传递进来的时该值的拷贝，默认该拷贝值为只读状态，要是想修改该拷贝值就得使用mutable关键字
+    QPushButton *myBtn = new QPushButton(this);
+    QPushButton *myBtn2 = new QPushButton(this);
+    myBtn2->move(100, 100);
+    int m = 10;
+    connect(myBtn, &QPushButton::clicked, this, [m]()mutable {m = 100 + 10; qDebug() << m;});
+    connect(myBtn2, &QPushButton::clicked, this, [=](){qDebug() << m;});
+    qDebug() << m;
+
+		// Lambda 的返回值
+    int ret = []() ->int {return 100000;}();
+    qDebug() << "ret = " << ret;
+
+		// 利用lambda表达式实现点击按钮关闭窗口
+    QPushButton *btnLambda = new QPushButton(this);
+    btnLambda->setText("Close");
+    btnLambda->move(200, 100);
+    connect(btnLambda, &QPushButton::clicked, this, [=](){
+        this->close();
+    });
+```
+
+> 总结：
+>
+> 1. []：标识符，匿名函数；
+> 2. =：值传递，常用；
+> 3. &：引用传递；
+> 4. ()：参数；
+> 5. {}：函数体；
+> 6. mutable：修饰值传递变量，可以修改拷贝的数据，改变不了本体；
+> 7. 返回值：[]() ->int {}
+
+```cpp
+[=](){};		// Lambda 表达式最常用形式
+```
+
+```cpp
+// Exercise
+    QWidget *w = new QWidget();
+    QPushButton *openBtn = new QPushButton("打开", this);
+    openBtn->move(300, 100);
+    connect(openBtn, &QPushButton::clicked, w, &QWidget::show);
+    QPushButton *closeBtn = new QPushButton("关闭", this);
+    closeBtn->move(300, 200);
+    connect(closeBtn, &QPushButton::clicked, w, &QWidget::close);
+
+    QPushButton *multiBtn = new QPushButton("Multi", this);
+    multiBtn->move(300, 300);
+    bool toggle = true;
+    connect(multiBtn, &QPushButton::clicked, w, [toggle, w, multiBtn]()mutable{
+        if(toggle){
+            w->show();
+            multiBtn->setText("打开");
+            toggle = false;
+        }
+        else{
+            w->close();
+            multiBtn->setText("关闭");
+            toggle = true;
+        }
+    });
+```
+
