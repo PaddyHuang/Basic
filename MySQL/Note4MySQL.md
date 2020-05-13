@@ -736,6 +736,8 @@ Query OK, 0 rows affected (0.11 sec)
 
 ### 4. 查询练习
 
+#### 4.1 数据表准备
+
 ```sql
 mysql> create database SelectTest;
 Query OK, 1 row affected (0.02 sec)
@@ -853,28 +855,442 @@ insert into score values('107', '3-105', '76');
 insert into score values('109', '6-295', '62');
 insert into score values('108', '6-295', '76');
 insert into score values('107', '10-232', '71');
-
--- 查询练习
--- 1. 查询student表中的所有记录
-
--- 2. 查询student表中的所有记录的sname、ssex、class列
-
--- 3. 查询教师所有的单位，即不重复的department列
-
--- 4. 查询score表中成绩在60-80之间的所有记录
-
--- 5. 查询score表中成绩为75、76或78的记录
-
--- 6. 查询student表中‘95031’班或性别为‘f’的同学记录
-
--- 7. 以class降序查询student表的所有记录
-
--- 8. 以cno升序、degree降序查询score表的所有记录
-
--- 9. 查询‘95031’班的学生人数
-
--- 10. 查询score表中的最高分的学生学好和课程好（子查询或排序）
 ```
+
+#### 4.2 查询练习
+
+##### 1. 查询student表中的所有记录
+
+```sql
+mysql> select * from student;
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 101 | A     | m    | 1900-09-01 00:00:00 | 96033 |
+| 102 | K     | m    | 1902-10-01 00:00:00 | 96031 |
+| 103 | B     | m    | 1901-01-20 00:00:00 | 96033 |
+| 104 | C     | m    | 1901-05-04 00:00:00 | 96033 |
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 106 | X     | m    | 1901-07-15 00:00:00 | 96031 |
+| 107 | Z     | m    | 1901-07-15 00:00:00 | 96033 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
++-----+-------+------+---------------------+-------+
+9 rows in set (0.01 sec)
+```
+
+##### 2. 查询student表中所有记录的sname、ssex、class列
+
+```sql
+mysql> select sname, ssex, class from student;
++-------+------+-------+
+| sname | ssex | class |
++-------+------+-------+
+| A     | m    | 96033 |
+| K     | m    | 96031 |
+| B     | m    | 96033 |
+| C     | m    | 96033 |
+| Y     | f    | 96031 |
+| X     | m    | 96031 |
+| Z     | m    | 96033 |
+| H     | f    | 96031 |
+| G     | f    | 96031 |
++-------+------+-------+
+9 rows in set (0.01 sec)
+```
+
+##### 3. 查询教师所有的单位，即不重复的department列
+
+```sql
+mysql> select distinct department from teacher;		-- distinct 去重
++------------+
+| department |
++------------+
+| CS         |
+| EE         |
++------------+
+2 rows in set (0.01 sec)
+```
+
+##### 4. 查询score表中成绩在60-80之间的所有记录(查询区间)
+
+```sql
+-- 法一：between...and...
+mysql> select * from score where degree between 60 and 80;
+-- 法二：直接用运算符比较
+mysql> select * from score where degree > 60 and degree < 80;
++-----+--------+--------+
+| sno | cno    | degree |
++-----+--------+--------+
+| 103 | 3-105  |     76 |
+| 104 | 6-295  |     74 |
+| 106 | 10-232 |     75 |
+| 107 | 10-232 |     71 |
+| 107 | 3-105  |     76 |
+| 108 | 6-295  |     76 |
+| 109 | 6-295  |     62 |
++-----+--------+--------+
+7 rows in set (0.00 sec)
+```
+
+##### 5. 查询score表中成绩为75、76或78的记录
+
+```sql
+-- 表示或关系
+mysql> select * from score where degree in (75, 76, 78);
++-----+--------+--------+
+| sno | cno    | degree |
++-----+--------+--------+
+| 103 | 3-105  |     76 |
+| 106 | 10-232 |     75 |
+| 107 | 3-105  |     76 |
+| 108 | 6-295  |     76 |
++-----+--------+--------+
+4 rows in set (0.01 sec)
+```
+
+##### 6. 查询student表中‘95031’班或性别为‘f’的同学记录
+
+```sql
+-- or 表示或关系
+mysql> select * from student where class = '95031' or ssex = 'f';
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
++-----+-------+------+---------------------+-------+
+3 rows in set (0.01 sec)
+```
+
+##### 7. 以class降序查询student表的所有记录
+
+```sql
+-- 升序 asc(default)
+mysql> select * from student order by class asc;
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 102 | K     | m    | 1902-10-01 00:00:00 | 96031 |
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 106 | X     | m    | 1901-07-15 00:00:00 | 96031 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
+| 101 | A     | m    | 1900-09-01 00:00:00 | 96033 |
+| 103 | B     | m    | 1901-01-20 00:00:00 | 96033 |
+| 104 | C     | m    | 1901-05-04 00:00:00 | 96033 |
+| 107 | Z     | m    | 1901-07-15 00:00:00 | 96033 |
++-----+-------+------+---------------------+-------+
+9 rows in set (0.00 sec)
+-- 降序 desc
+mysql> select * from student order by class desc;
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 101 | A     | m    | 1900-09-01 00:00:00 | 96033 |
+| 103 | B     | m    | 1901-01-20 00:00:00 | 96033 |
+| 104 | C     | m    | 1901-05-04 00:00:00 | 96033 |
+| 107 | Z     | m    | 1901-07-15 00:00:00 | 96033 |
+| 102 | K     | m    | 1902-10-01 00:00:00 | 96031 |
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 106 | X     | m    | 1901-07-15 00:00:00 | 96031 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
++-----+-------+------+---------------------+-------+
+9 rows in set (0.00 sec)
+```
+
+##### 8. 以cno升序、degree降序查询score表的所有记录
+
+```sql
+mysql> select * from score order by cno asc, degree desc;
++-----+--------+--------+
+| sno | cno    | degree |
++-----+--------+--------+
+| 106 | 10-232 |     75 |
+| 107 | 10-232 |     71 |
+| 108 | 10-232 |     23 |
+| 101 | 3-105  |     98 |
+| 105 | 3-105  |     89 |
+| 103 | 3-105  |     76 |
+| 107 | 3-105  |     76 |
+| 102 | 3-245  |     43 |
+| 108 | 6-295  |     76 |
+| 104 | 6-295  |     74 |
+| 109 | 6-295  |     62 |
+| 105 | 6-295  |     56 |
++-----+--------+--------+
+12 rows in set (0.00 sec)
+```
+
+##### 9. 查询‘96031’班的学生人数
+
+```sql
+mysql> select count(*) from student where class = '96031';
++----------+
+| count(*) |
++----------+
+|        5 |
++----------+
+1 row in set (0.00 sec)
+```
+
+##### 10. 查询score表中的最高分的学生学好和课程好（子查询或排序）
+
+```sql
+mysql> select sno, cno from score where degree = (select max(degree) from score);
++-----+-------+
+| sno | cno   |
++-----+-------+
+| 101 | 3-105 |
++-----+-------+
+1 row in set (0.00 sec)
+
+-- Step 1. 找到最高分
+select max(degree) from score;
+-- Step 2. 找最高分的sno和cno
+select sno, cno from score where degree = (select max(degree) from score);
+
+-- 排序的做法
+mysql> select sno, cno, degree from score order by degree;
++-----+--------+--------+
+| sno | cno    | degree |
++-----+--------+--------+
+| 108 | 10-232 |     23 |
+| 102 | 3-245  |     43 |
+| 105 | 6-295  |     56 |
+| 109 | 6-295  |     62 |
+| 107 | 10-232 |     71 |
+| 104 | 6-295  |     74 |
+| 106 | 10-232 |     75 |
+| 103 | 3-105  |     76 |
+| 107 | 3-105  |     76 |
+| 108 | 6-295  |     76 |
+| 105 | 3-105  |     89 |
+| 101 | 3-105  |     98 |
++-----+--------+--------+
+12 rows in set (0.00 sec)
+
+mysql> select sno, cno, degree from score order by degree limit 0, 1;	-- 0：起点，1：查几条
++-----+--------+--------+
+| sno | cno    | degree |
++-----+--------+--------+
+| 108 | 10-232 |     23 |
++-----+--------+--------+
+1 row in set (0.00 sec)
+
+mysql> select sno, cno, degree from score order by degree desc limit 0, 1;
++-----+-------+--------+
+| sno | cno   | degree |
++-----+-------+--------+
+| 101 | 3-105 |     98 |
++-----+-------+--------+
+1 row in set (0.00 sec)
+```
+
+##### 11. 查询每门课的平均成绩
+
+```sql
+-- avg()
+mysql> select avg(degree) from score where cno = '3-105';
++-------------+
+| avg(degree) |
++-------------+
+|     84.7500 |
++-------------+
+1 row in set (0.00 sec)
+-- group by 分组
+mysql> select cno, avg(degree) from score group by cno;
++--------+-------------+
+| cno    | avg(degree) |
++--------+-------------+
+| 10-232 |     56.3333 |
+| 3-105  |     84.7500 |
+| 3-245  |     43.0000 |
+| 6-295  |     67.0000 |
++--------+-------------+
+4 rows in set (0.00 sec)
+```
+
+##### 12. 查询score表中至少有2名学生选修的并以3开头的课程的平均分数
+
+```sql
+-- score表中至少有2名学生选修的并以3开头的课程
+-- group by 后跟的条件要用having
+-- like 模糊查询
+mysql> select cno from score group by cno having count(cno) >= 2 and cno like '3%';
++-------+
+| cno   |
++-------+
+| 3-105 |
++-------+
+1 row in set (0.00 sec)
+-- score表中至少有2名学生选修的并以3开头的课程的平均分数
+mysql> select cno, avg(degree), count(*) from score group by cno having count(cno) >= 2 and cno like '3%';
++-------+-------------+----------+
+| cno   | avg(degree) | count(*) |
++-------+-------------+----------+
+| 3-105 |     84.7500 |        4 |
++-------+-------------+----------+
+1 row in set (0.00 sec)
+```
+
+##### 13. 查询分数大于70，小于90的sno列
+
+```sql
+-- 法一：
+mysql> select sno, degree from score
+    -> where degree > 70 and degree < 90;
++-----+--------+
+| sno | degree |
++-----+--------+
+| 103 |     76 |
+| 104 |     74 |
+| 105 |     89 |
+| 106 |     75 |
+| 107 |     71 |
+| 107 |     76 |
+| 108 |     76 |
++-----+--------+
+7 rows in set (0.00 sec)
+-- 法二：
+mysql> select sno, degree from score where degree between 70 and 90;
++-----+--------+
+| sno | degree |
++-----+--------+
+| 103 |     76 |
+| 104 |     74 |
+| 105 |     89 |
+| 106 |     75 |
+| 107 |     71 |
+| 107 |     76 |
+| 108 |     76 |
++-----+--------+
+7 rows in set (0.01 sec)
+```
+
+##### 14. 查询所有学生的sname、cno和degree列
+
+```sql
+mysql> select student.sname, score.cno, score.degree from student, score where student.sno = score.sno;
++-------+--------+--------+
+| sname | cno    | degree |
++-------+--------+--------+
+| A     | 3-105  |     98 |
+| K     | 3-245  |     43 |
+| B     | 3-105  |     76 |
+| C     | 6-295  |     74 |
+| Y     | 3-105  |     89 |
+| Y     | 6-295  |     56 |
+| X     | 10-232 |     75 |
+| Z     | 10-232 |     71 |
+| Z     | 3-105  |     76 |
+| H     | 10-232 |     23 |
+| H     | 6-295  |     76 |
+| G     | 6-295  |     62 |
++-------+--------+--------+
+12 rows in set (0.00 sec)
+```
+
+##### 15. 查询所有学生的sno、cname、degree列
+
+```sql
+mysql> select score.sno, course.cname, score.degree from score, course where score.cno = course.cno;
++-----+---------------+--------+
+| sno | cname         | degree |
++-----+---------------+--------+
+| 106 | System        |     75 |
+| 107 | System        |     71 |
+| 108 | System        |     23 |
+| 101 | DataStructure |     98 |
+| 103 | DataStructure |     76 |
+| 105 | DataStructure |     89 |
+| 107 | DataStructure |     76 |
+| 102 | Network       |     43 |
+| 104 | Architecture  |     74 |
+| 105 | Architecture  |     56 |
+| 108 | Architecture  |     76 |
+| 109 | Architecture  |     62 |
++-----+---------------+--------+
+12 rows in set (0.00 sec)
+```
+
+##### 16. 查询所有学生的sname、cname、degree列
+
+```sql
+mysql> select student.sname, course.cname, score.degree from student, score, course where student.sno = score.sno and course.cno = score.cno;
++-------+---------------+--------+
+| sname | cname         | degree |
++-------+---------------+--------+
+| X     | System        |     75 |
+| Z     | System        |     71 |
+| H     | System        |     23 |
+| A     | DataStructure |     98 |
+| B     | DataStructure |     76 |
+| Y     | DataStructure |     89 |
+| Z     | DataStructure |     76 |
+| K     | Network       |     43 |
+| C     | Architecture  |     74 |
+| Y     | Architecture  |     56 |
+| H     | Architecture  |     76 |
+| G     | Architecture  |     62 |
++-------+---------------+--------+
+12 rows in set (0.00 sec)
+```
+
+##### 17. 查询‘96031’班学生每门课的平均分
+
+```sql
+-- 选出96031班的所有学生
+mysql> select sno from student where class = '96031';
+-- 选出96031班所有学生的信息
+mysql> select * from score where sno in (select sno from student where class = '96031');
+-- 查询‘96031’班学生每门课的平均分
+mysql> select cno, avg(degree) from score where sno in (select sno from student where class = '96031') group by cno;
++--------+-------------+
+| cno    | avg(degree) |
++--------+-------------+
+| 3-245  |     43.0000 |
+| 3-105  |     89.0000 |
+| 6-295  |     64.6667 |
+| 10-232 |     49.0000 |
++--------+-------------+
+4 rows in set (0.00 sec)
+```
+
+##### 18. 查询选修“3-105”课程的成绩高于“103”号同学“3-105”成绩的所有同学的成绩
+
+```sql
+-- 选出“103”号同学“3-105”成绩
+select degree from score where sno = '103';
+-- 选出所有选修“3-105”的同学
+select sno, degree from score where cno = '3-105';
+-- 查询选修“3-105”课程的，并且成绩高于“103”号同学“3-105”成绩的，所有同学的成绩
+mysql> select sno, degree from score where cno = '3-105' and degree > (select degree from score where sno = '103'); 
++-----+--------+
+| sno | degree |
++-----+--------+
+| 101 |     98 |
+| 105 |     89 |
++-----+--------+
+2 rows in set (0.00 sec)
+```
+
+##### 19. 查询成绩高于学号为“103”、课程号为“3-105”的成绩的所有记录
+
+```sql
+mysql> select * from score where degree > (select degree from score where sno = '103' and cno = '3-105');
++-----+-------+--------+
+| sno | cno   | degree |
++-----+-------+--------+
+| 101 | 3-105 |     98 |
+| 105 | 3-105 |     89 |
++-----+-------+--------+
+2 rows in set (0.00 sec)
+```
+
+
 
 
 
