@@ -4,7 +4,7 @@
 
 ## 一、Operate MySQL in Terminal
 
-## 1. Basic operation
+### 1. Basic operation
 
 #### (1). Login MySQL
 
@@ -1289,6 +1289,1243 @@ mysql> select * from score where degree > (select degree from score where sno = 
 +-----+-------+--------+
 2 rows in set (0.00 sec)
 ```
+
+##### 20. 查询和学号为‘108’、‘101‘的同学，同年出生的所有学生的sno、sname和sbirthday列
+
+```sql
+-- 选出学号为‘108’、‘101‘的同学的sbirthday
+select year(sbirthday) from student where sno in ('108', '101');
+-- 和学号为‘108’、‘101‘的同学，同年出生的所有学生的sno、sname和sbirthday列
+mysql> select sno, sname, sbirthday from student where year(sbirthday) in (select year(sbirthday) from student where sno in ('108', '101'));
++-----+-------+---------------------+
+| sno | sname | sbirthday           |
++-----+-------+---------------------+
+| 101 | A     | 1900-09-01 00:00:00 |
+| 103 | B     | 1901-01-20 00:00:00 |
+| 104 | C     | 1901-05-04 00:00:00 |
+| 105 | Y     | 1900-02-03 00:00:00 |
+| 106 | X     | 1901-07-15 00:00:00 |
+| 107 | Z     | 1901-07-15 00:00:00 |
+| 108 | H     | 1901-07-15 00:00:00 |
+| 109 | G     | 1901-07-15 00:00:00 |
++-----+-------+---------------------+
+8 rows in set (0.02 sec)
+```
+
+##### 21. 查询AA教师任课的学生成绩
+
+```sql
+-- 先查出AA教师的教师编号
+mysql> select tno from teacher where tname = 'AA';
++-----+
+| tno |
++-----+
+| 093 |
++-----+
+1 row in set (0.00 sec)
+-- 再查出查出AA教师任教的课程
+mysql> select cno from course where tno in (select tno from teacher where tname = 'AA');
++-------+
+| cno   |
++-------+
+| 6-295 |
++-------+
+1 row in set (0.01 sec)
+-- 最后查出AA教师任课的学生成绩
+mysql> select * from score where cno in (select cno from course where tno in (select tno from teacher where tname = 'AA'));
++-----+-------+--------+
+| sno | cno   | degree |
++-----+-------+--------+
+| 104 | 6-295 |     74 |
+| 105 | 6-295 |     56 |
+| 108 | 6-295 |     76 |
+| 109 | 6-295 |     62 |
++-----+-------+--------+
+4 rows in set (0.00 sec)
+```
+
+##### 22. 查询选修某课程的同学人数多于3人的教师姓名
+
+```sql
+-- 先查询选修每门课程的同学人数
+mysql> select cno, count(sno) from score group by cno;
++--------+------------+
+| cno    | count(sno) |
++--------+------------+
+| 10-232 |          3 |
+| 3-105  |          4 |
+| 3-245  |          1 |
+| 6-295  |          4 |
++--------+------------+
+4 rows in set (0.01 sec)
+-- 再查询选修人数多于3人的课程号
+mysql> select cno from score group by cno having count(*) > 3;
++-------+
+| cno   |
++-------+
+| 3-105 |
+| 6-295 |
++-------+
+2 rows in set (0.00 sec)
+-- 再查询这两门课任教的教师编号
+mysql> select tno from course where cno in (select cno from score group by cno having count(*) > 3);
++-----+
+| tno |
++-----+
+| 093 |
+| 102 |
++-----+
+2 rows in set (0.00 sec)
+-- 最后查教师姓名
+mysql> select tname from teacher where tno in (select tno from course where cno in (select cno from score group by cno having count(*) > 3));
++-------+
+| tname |
++-------+
+| AA    |
+| BB    |
++-------+
+2 rows in set (0.00 sec)
+```
+
+##### 23. 查询96031和96033班全体学生的记录
+
+```sql
+mysql> select * from student where class in ('96031', '96033');
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 101 | A     | m    | 1900-09-01 00:00:00 | 96033 |
+| 102 | K     | m    | 1902-10-01 00:00:00 | 96031 |
+| 103 | B     | m    | 1901-01-20 00:00:00 | 96033 |
+| 104 | C     | m    | 1901-05-04 00:00:00 | 96033 |
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 106 | X     | m    | 1901-07-15 00:00:00 | 96031 |
+| 107 | Z     | m    | 1901-07-15 00:00:00 | 96033 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
++-----+-------+------+---------------------+-------+
+9 rows in set (0.00 sec)
+```
+
+##### 24. 查询存在有85分以上成绩的课程号
+
+```sql
+mysql> select cno, degree from score where degree > 85;
++-------+--------+
+| cno   | degree |
++-------+--------+
+| 3-105 |     98 |
+| 3-105 |     89 |
++-------+--------+
+2 rows in set (0.00 sec)
+```
+
+##### 25. 查询出CS系教师所教课程的成绩表
+
+```sql
+-- 先查出教CS的教师的教师编号
+mysql> select tno from teacher where department = 'CS';
++-----+
+| tno |
++-----+
+| 093 |
+| 195 |
++-----+
+2 rows in set (0.00 sec)
+-- 再查出这些教师所教的课程号
+mysql> select cno from course where tno in (select tno from teacher where department = 'CS');
++-------+
+| cno   |
++-------+
+| 6-295 |
+| 3-245 |
++-------+
+2 rows in set (0.01 sec)
+-- 最后查出score表中的degree
+mysql> select cno, degree from score where cno in (select cno from course where tno in (select tno from teacher where department = 'CS'));
++-------+--------+
+| cno   | degree |
++-------+--------+
+| 6-295 |     74 |
+| 6-295 |     56 |
+| 6-295 |     76 |
+| 6-295 |     62 |
+| 3-245 |     43 |
++-------+--------+
+5 rows in set (0.00 sec)
+```
+
+##### 26. 查询“CS”系和“EE”系不同职称的教师的tname和prof
+
+> union：求并集
+
+```sql
+mysql> select * from teacher;
++-----+-------+------+---------------------+-----------+------------+
+| tno | tname | tsex | tbierthday          | prof      | department |
++-----+-------+------+---------------------+-----------+------------+
+| 093 | AA    | m    | 1887-12-03 00:00:00 | Prof      | CS         |
+| 102 | BB    | m    | 1898-10-01 00:00:00 | Lecture   | EE         |
+| 195 | CC    | f    | 1892-02-20 00:00:00 | Assistant | CS         |
+| 209 | DD    | f    | 1898-08-03 00:00:00 | Assistant | EE         |
++-----+-------+------+---------------------+-----------+------------+
+4 rows in set (0.00 sec)
+-- 查询CS系有的职称
+mysql> select prof from teacher where department = 'CS';
++-----------+
+| prof      |
++-----------+
+| Prof      |
+| Assistant |
++-----------+
+2 rows in set (0.00 sec)
+-- 查询EE系有的职称
+mysql> select prof from teacher where department = 'EE';
++-----------+
+| prof      |
++-----------+
+| Lecture   |
+| Assistant |
++-----------+
+2 rows in set (0.00 sec)
+-- 查询CS有而EE没有的职称
+mysql> select prof from teacher where department = 'CS' and prof not in (select prof from teacher where department = 'EE');
++------+
+| prof |
++------+
+| Prof |
++------+
+1 row in set (0.01 sec)
+-- 查询EE有而CS没有的职称
+mysql> select prof from teacher where department = 'EE' and prof not in (select prof from teacher where department = 'CS');
++---------+
+| prof    |
++---------+
+| Lecture |
++---------+
+1 row in set (0.01 sec)
+-- union
+mysql> select prof from teacher where department = 'CS' and prof not in (select prof from teacher where department = 'EE')
+    -> union
+    -> select prof from teacher where department = 'EE' and prof not in (select prof from teacher where department = 'CS');
++---------+
+| prof    |
++---------+
+| Prof    |
+| Lecture |
++---------+
+2 rows in set (0.00 sec)
+```
+
+##### 27. 查询选修编号为"3-105"课程且成绩*至少*高于选修编号为'3-245'课程的同学的cno，sno和degree，并且按照degree从高到地次序排序
+
+```sql
+-- 先查询选修‘3-105’课程的同学
+select * from score where cno = '3-105';
+-- 再查选修‘3-245’课程的同学的成绩
+select degree from score where cno = '3-245';
+-- 最后查询选修编号为"3-105"课程且成绩至少高于选修编号为'3-245'课程的同学的cno，sno和degree，并且按照degree从高到地次序排序
+mysql> select cno, sno, degree from score where cno = '3-105' and degree > any(select degree from score where cno = '3-245') order by degree desc;
++-------+-----+--------+
+| cno   | sno | degree |
++-------+-----+--------+
+| 3-105 | 101 |     98 |
+| 3-105 | 105 |     89 |
+| 3-105 | 103 |     76 |
+| 3-105 | 107 |     76 |
++-------+-----+--------+
+4 rows in set (0.00 sec)
+```
+
+##### 28. 查询选修编号为"3-105"且成绩高于选修编号为"3-245"课程的同学cno，sno和degree
+
+> all：表示所有
+
+```sql
+mysql> select cno, sno, degree from score where cno = '3-105' and degree > all(select degree from score where cno = '3-245');
++-------+-----+--------+
+| cno   | sno | degree |
++-------+-----+--------+
+| 3-105 | 101 |     98 |
+| 3-105 | 103 |     76 |
+| 3-105 | 105 |     89 |
+| 3-105 | 107 |     76 |
++-------+-----+--------+
+4 rows in set (0.01 sec)
+```
+
+##### 29. 查询所有教师和同学的 name ,sex, birthday
+
+```sql
+-- 查出教师姓名
+select tname as name, tsex, tbirthday from teacher;
+-- 查出学生姓名
+select sname as name, ssex, sbirthday form student;
+-- 并集
+mysql> select tname as name, tsex as sex, tbierthday as birthday from teacher
+    -> union
+    -> select sname, ssex, sbirthday from student;		-- 第二排会以第一排为准
++------+-----+---------------------+
+| name | sex | birthday            |
++------+-----+---------------------+
+| AA   | m   | 1887-12-03 00:00:00 |
+| BB   | m   | 1898-10-01 00:00:00 |
+| CC   | f   | 1892-02-20 00:00:00 |
+| DD   | f   | 1898-08-03 00:00:00 |
+| A    | m   | 1900-09-01 00:00:00 |
+| K    | m   | 1902-10-01 00:00:00 |
+| B    | m   | 1901-01-20 00:00:00 |
+| C    | m   | 1901-05-04 00:00:00 |
+| Y    | f   | 1900-02-03 00:00:00 |
+| X    | m   | 1901-07-15 00:00:00 |
+| Z    | m   | 1901-07-15 00:00:00 |
+| H    | f   | 1901-07-15 00:00:00 |
+| G    | f   | 1901-07-15 00:00:00 |
++------+-----+---------------------+
+13 rows in set (0.01 sec)
+```
+
+##### 30.查询所有'女'教师和'女'学生的name,sex,birthday
+
+```sql
+-- 查询所有女教师的name，sex和birthday
+mysql> select tname, tsex, tbierthday from teacher where tsex = 'f';
++-------+------+---------------------+
+| tname | tsex | tbierthday          |
++-------+------+---------------------+
+| CC    | f    | 1892-02-20 00:00:00 |
+| DD    | f    | 1898-08-03 00:00:00 |
++-------+------+---------------------+
+2 rows in set (0.01 sec)
+-- 查询所有女学生的name，sex和birthday
+mysql> select sname, ssex, sbirthday from student where ssex = 'f';
++-------+------+---------------------+
+| sname | ssex | sbirthday           |
++-------+------+---------------------+
+| Y     | f    | 1900-02-03 00:00:00 |
+| H     | f    | 1901-07-15 00:00:00 |
+| G     | f    | 1901-07-15 00:00:00 |
++-------+------+---------------------+
+3 rows in set (0.01 sec)
+-- 查询所有'女'教师和'女'学生的name,sex,birthday
+mysql> select tname as name, tsex as sex, tbierthday as birthday from teacher where tsex = 'f'
+    -> union
+    -> select sname, ssex, sbirthday from student where ssex = 'f';
++------+-----+---------------------+
+| name | sex | birthday            |
++------+-----+---------------------+
+| CC   | f   | 1892-02-20 00:00:00 |
+| DD   | f   | 1898-08-03 00:00:00 |
+| Y    | f   | 1900-02-03 00:00:00 |
+| H    | f   | 1901-07-15 00:00:00 |
+| G    | f   | 1901-07-15 00:00:00 |
++------+-----+---------------------+
+5 rows in set (0.00 sec)
+```
+
+##### 31.查询成绩比该课程平均成绩低的同学的成绩表
+
+> 复制表数据做条件查询
+
+```sql
+-- 查询每门课程的平均成绩
+select cno, avg(degree) from score group by cno;
+-- 查询成绩比该课程平均成绩低的同学的成绩表
+mysql> select * from score a where a.degree < (select avg(b.degree) from score b where a.cno = b.cno);
++-----+--------+--------+
+| sno | cno    | degree |
++-----+--------+--------+
+| 103 | 3-105  |     76 |
+| 105 | 6-295  |     56 |
+| 107 | 3-105  |     76 |
+| 108 | 10-232 |     23 |
+| 109 | 6-295  |     62 |
++-----+--------+--------+
+5 rows in set (0.03 sec)
+```
+
+##### 32.查询所有任课教师的tname和department(要在分数表中可以查得到)
+
+```sql
+mysql> select tname, department from teacher where tno in (select tno from course);
++-------+------------+
+| tname | department |
++-------+------------+
+| AA    | CS         |
+| BB    | EE         |
+| CC    | CS         |
+| DD    | EE         |
++-------+------------+
+4 rows in set (0.01 sec)
+```
+
+##### 33.查出至少有2名男生的班号
+
+```sql
+mysql> select class from student where ssex = 'm' group by class having count(*) > 1;
++-------+
+| class |
++-------+
+| 96033 |
+| 96031 |
++-------+
+2 rows in set (0.01 sec)
+```
+
+##### 34.查询student 表中不姓"A"的同学的记录
+
+```sql
+mysql> select * from student where sname not like 'A%';
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 102 | K     | m    | 1902-10-01 00:00:00 | 96031 |
+| 103 | B     | m    | 1901-01-20 00:00:00 | 96033 |
+| 104 | C     | m    | 1901-05-04 00:00:00 | 96033 |
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 106 | X     | m    | 1901-07-15 00:00:00 | 96031 |
+| 107 | Z     | m    | 1901-07-15 00:00:00 | 96033 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
++-----+-------+------+---------------------+-------+
+8 rows in set (0.00 sec)
+```
+
+##### 35. 查询student中每个学生的姓名和年龄
+
+```sql
+-- 年龄 = 当前时间 - 出生年份
+mysql> select year(now());
++-------------+
+| year(now()) |
++-------------+
+|        2020 |
++-------------+
+1 row in set (0.00 sec)
+-- 
+mysql> select year(sbirthday) from student;
++-----------------+
+| year(sbirthday) |
++-----------------+
+|            1900 |
+|            1902 |
+|            1901 |
+|            1901 |
+|            1900 |
+|            1901 |
+|            1901 |
+|            1901 |
+|            1901 |
++-----------------+
+9 rows in set (0.01 sec)
+-- 查询student中每个学生的姓名和年龄
+mysql> select sname, (year(now()) - year(sbirthday)) as age from student;
++-------+------+
+| sname | age  |
++-------+------+
+| A     |  120 |
+| K     |  118 |
+| B     |  119 |
+| C     |  119 |
+| Y     |  120 |
+| X     |  119 |
+| Z     |  119 |
+| H     |  119 |
+| G     |  119 |
++-------+------+
+9 rows in set (0.00 sec)
+```
+
+##### 36. 查询student中最大和最小的sbirthday的值
+
+```sql
+mysql> select max(sbirthday) as Youngest, min(sbirthday) as Eldest from student;
++---------------------+---------------------+
+| Youngest            | Eldest              |
++---------------------+---------------------+
+| 1902-10-01 00:00:00 | 1900-02-03 00:00:00 |
++---------------------+---------------------+
+1 row in set (0.00 sec)
+```
+
+##### 37. 以班级号和年龄从大到小的顺序查询student表中的全部记录
+
+```sql
+mysql> select * from student order by class desc, (now() - sbirthday) desc;
++-----+-------+------+---------------------+-------+
+| sno | sname | ssex | sbirthday           | class |
++-----+-------+------+---------------------+-------+
+| 101 | A     | m    | 1900-09-01 00:00:00 | 96033 |
+| 103 | B     | m    | 1901-01-20 00:00:00 | 96033 |
+| 104 | C     | m    | 1901-05-04 00:00:00 | 96033 |
+| 107 | Z     | m    | 1901-07-15 00:00:00 | 96033 |
+| 105 | Y     | f    | 1900-02-03 00:00:00 | 96031 |
+| 106 | X     | m    | 1901-07-15 00:00:00 | 96031 |
+| 108 | H     | f    | 1901-07-15 00:00:00 | 96031 |
+| 109 | G     | f    | 1901-07-15 00:00:00 | 96031 |
+| 102 | K     | m    | 1902-10-01 00:00:00 | 96031 |
++-----+-------+------+---------------------+-------+
+9 rows in set (0.00 sec)
+```
+
+##### 38.查询"男"教师及其所上的课
+
+```sql
+-- 查询出男教师
+select tno from teacher where tsex = 'm';
+-- 查询"男"教师 及其所上的课
+mysql> select cno from course where tno in (select tno from teacher where tsex = 'm');
++-------+
+| cno   |
++-------+
+| 6-295 |
+| 3-105 |
++-------+
+2 rows in set (0.01 sec)
+```
+
+##### 39.查询最高分同学的sno, cno和degree
+
+```sql
+-- 查出最高分的同学
+select max(degree) from score;
+-- 查询最高分同学的sno, cno和degree
+mysql> select sno, cno , degree from score where degree in (select max(degree) from score);
++-----+-------+--------+
+| sno | cno   | degree |
++-----+-------+--------+
+| 101 | 3-105 |     98 |
++-----+-------+--------+
+1 row in set (0.00 sec)
+```
+
+##### 40. 查询和"C"同性别的所有同学的sname
+
+```sql
+-- 查询出“C”的性别
+mysql> select ssex from student where sname  = 'C';
++------+
+| ssex |
++------+
+| m    |
++------+
+1 row in set (0.00 sec)
+-- 查询和"C"同性别的所有同学的sname
+mysql> select sname, ssex from student where ssex = (select ssex from student where sname  = 'C');
++-------+------+
+| sname | ssex |
++-------+------+
+| A     | m    |
+| K     | m    |
+| B     | m    |
+| C     | m    |
+| X     | m    |
+| Z     | m    |
++-------+------+
+6 rows in set (0.00 sec)
+```
+
+##### 41.查询和"C"同性别并且同班的所有同学的sname
+
+```sql
+-- 查询出“C”的性别
+mysql> select ssex from student where sname  = 'C';
++------+
+| ssex |
++------+
+| m    |
++------+
+1 row in set (0.00 sec)
+-- 查询和"C"同班的所有同学的sname
+mysql> select sname, ssex, class from student where 
+    -> ssex = (select ssex from student where sname  = 'C')
+    -> and
+    -> class = (select class from student where sname  = 'C');
++-------+------+-------+
+| sname | ssex | class |
++-------+------+-------+
+| A     | m    | 96033 |
+| B     | m    | 96033 |
+| C     | m    | 96033 |
+| Z     | m    | 96033 |
++-------+------+-------+
+4 rows in set (0.01 sec)
+```
+
+##### 42. 查询所有选修'DataStructure'课程的'男'同学的成绩表
+
+```sql
+-- 选出'DataStructure'课程的课程号
+mysql> select cno from course where cname = 'DataStructure';
++-------+
+| cno   |
++-------+
+| 3-105 |
++-------+
+1 row in set (0.00 sec)
+-- 选出男同学的学号
+mysql> select sno from student where ssex = 'm';
++-----+
+| sno |
++-----+
+| 101 |
+| 102 |
+| 103 |
+| 104 |
+| 106 |
+| 107 |
++-----+
+6 rows in set (0.00 sec)
+-- 查询所有选修'DataStructure'课程的'男'同学的成绩表
+mysql> select * from score where
+    -> cno in (select cno from course where cname = 'DataStructure')
+    -> and 
+    -> sno in (select sno from student where ssex = 'm');
++-----+-------+--------+
+| sno | cno   | degree |
++-----+-------+--------+
+| 101 | 3-105 |     98 |
+| 103 | 3-105 |     76 |
+| 107 | 3-105 |     76 |
++-----+-------+--------+
+3 rows in set (0.02 sec)
+```
+
+##### 43. 假设使用了以下命令建立了一个grade表，查询所有同学的sno , cno和grade列
+
+```sql
+CREATE TABLE grade(
+    low INT(3),
+    upp INT(3),
+    grade CHAR(1)
+);
+INSERT INTO grade VALUES(90,100,'A');
+INSERT INTO grade VALUES(80,89,'B');
+INSERT INTO grade VALUES(70,79,'c');
+INSERT INTO grade VALUES(60,69,'D');
+INSERT INTO grade VALUES(0,59,'E');
+```
+
+```sql
+-- 查询所有同学的sno , cno和grade列
+mysql> select sno, cno, grade from score, grade where degree between low and upp;
++-----+--------+-------+
+| sno | cno    | grade |
++-----+--------+-------+
+| 101 | 3-105  | A     |
+| 102 | 3-245  | E     |
+| 103 | 3-105  | c     |
+| 104 | 6-295  | c     |
+| 105 | 3-105  | B     |
+| 105 | 6-295  | E     |
+| 106 | 10-232 | c     |
+| 107 | 10-232 | c     |
+| 107 | 3-105  | c     |
+| 108 | 10-232 | E     |
+| 108 | 6-295  | c     |
+| 109 | 6-295  | D     |
++-----+--------+-------+
+12 rows in set (0.00 sec)
+```
+
+### 5. SQL的四种查询方式
+
+```sql
+-- 例：创建两个表
+mysql> create database JoinTest;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> use JoinTest;
+Database changed
+
+mysql> use JoinTest;
+Database changed
+mysql> create table person(
+    -> id int,
+    -> name varchar(20),
+    -> cardId int
+    -> );
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> create table card(
+    -> id int,
+    -> name varchar(20)
+    -> );
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> delete from card where id in (3, 4, 5, 1);
+Query OK, 4 rows affected (0.01 sec)
+
+mysql> select * from card;
+Empty set (0.00 sec)
+
+mysql> insert into card values(1, 'Food Card');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into card values(2, 'ICBC Card');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> insert into card values(3, 'POST Card');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into card values(4, 'CCB Card');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> insert into card values(5, 'CMB Card');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from card;
++------+-----------+
+| id   | name      |
++------+-----------+
+|    1 | Food Card |
+|    2 | ICBC Card |
+|    3 | POST Card |
+|    4 | CCB Card  |
+|    5 | CMB Card  |
++------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> insert into person values(1, 'zhangsan', 1);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> insert into person values(2, 'lisi', 4);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> insert into person values(3, 'wangwu', 5);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from person;
++------+----------+--------+
+| id   | name     | cardId |
++------+----------+--------+
+|    1 | zhangsan |      1 |
+|    2 | lisi     |      4 |
+|    3 | wangwu   |      5 |
++------+----------+--------+
+3 rows in set (0.00 sec)
+-- 并没有创建外键
+```
+
+#### 5.1 内连接：inner join / join
+
+在两张表中，通过某个相关联的字段，查询出相关记录数据
+
+```sql
+ mysql> select * from person (inner) join card on person.cardId = card.id;
++------+----------+--------+------+-----------+
+| id   | name     | cardId | id   | name      |
++------+----------+--------+------+-----------+
+|    1 | zhangsan |      1 |    1 | Food Card |
+|    2 | lisi     |      4 |    4 | CCB Card  |
+|    3 | wangwu   |      5 |    5 | CMB Card  |
++------+----------+--------+------+-----------+
+3 rows in set (0.01 sec)
+```
+
+#### 5.2 外连接：
+
+##### 5.2.1 左连接：left join / left outer join
+
+左外连接，会把左表的所有数据取出，而右表中的数据，如果有与左表中的相等的，就取出，否则置空。
+
+```sql
+mysql> select * from person left (outer) join card on person.cardId = card.id;
++------+----------+--------+------+-----------+
+| id   | name     | cardId | id   | name      |
++------+----------+--------+------+-----------+
+|    1 | zhangsan |      1 |    1 | Food Card |
+|    2 | lisi     |      4 |    4 | CCB Card  |
+|    3 | wangwu   |      5 |    5 | CMB Card  |
++------+----------+--------+------+-----------+
+3 rows in set (0.01 sec)
+```
+
+##### 5.2.2 右连接：right join / right outer join
+
+右外连接，会把右表的所有数据取出，而左表中的数据，如果有与右表中的相等的，就取出，否则置空。
+
+```sql
+mysql> select * from person right (outer) join card on person.cardId = card.id;
++------+----------+--------+------+-----------+
+| id   | name     | cardId | id   | name      |
++------+----------+--------+------+-----------+
+|    1 | zhangsan |      1 |    1 | Food Card |
+| NULL | NULL     |   NULL |    2 | ICBC Card |
+| NULL | NULL     |   NULL |    3 | POST Card |
+|    2 | lisi     |      4 |    4 | CCB Card  |
+|    3 | wangwu   |      5 |    5 | CMB Card  |
++------+----------+--------+------+-----------+
+5 rows in set (0.00 sec)
+```
+
+##### 5.2.3 完全外连接：full join / full outer join
+
+```sql
+mysql> select * from person left join card on person.cardId = card.id
+    -> union
+    -> select * from person right join card on person.cardId = card.id;
++------+----------+--------+------+-----------+
+| id   | name     | cardId | id   | name      |
++------+----------+--------+------+-----------+
+|    1 | zhangsan |      1 |    1 | Food Card |
+|    2 | lisi     |      4 |    4 | CCB Card  |
+|    3 | wangwu   |      5 |    5 | CMB Card  |
+| NULL | NULL     |   NULL |    2 | ICBC Card |
+| NULL | NULL     |   NULL |    3 | POST Card |
++------+----------+--------+------+-----------+
+5 rows in set (0.01 sec)
+```
+
+### 6. 事务
+
+#### 6.1 事务是MySQL中最小的不可分割的工作单元。事务能保证一个业务的完整性。
+
+例如：
+
+```sql
+-- a --withdraw-> 100
+update bank set money = money - 100 where name = 'a';
+-- b <-sotre-- 100
+update bank set money = money + 100 where name = 'b';
+```
+
+在实际的程序中，如果只有一条语句执行成功，另一条语句没有执行成功，就会出现数据前后不一致。
+
+多条sql语句，可能会有同时成功的要求，要么就同时失败。
+
+#### 6.2 MySQL中如何控制事务？
+
+##### 6.2.1 MySQL中默认开启事务（自动提交）
+
+```sql
+mysql> select @@autocommit;
++--------------+
+| @@autocommit |
++--------------+
+|            1 |
++--------------+
+1 row in set (0.01 sec)
+```
+
+默认开启自动提交的作用是什么？
+
+当我们去执行一个sql语句时，效果就会立即体现出来，且不能回滚。
+
+```sql
+mysql> create database bank;
+Query OK, 1 row affected (0.08 sec)
+
+mysql> create table bank(
+    -> id int primary key,
+    -> name varchar(20),
+    -> money int
+    -> );
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> insert into bank values(1, 'a', 1000);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
++----+------+-------+
+1 row in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
++----+------+-------+
+1 row in set (0.00 sec)
+```
+
+设置默认提交为false：
+
+##### 6.2.2 手动提交（commit）数据，再撤销，不可行（数据持久性）
+
+```sql
+set autocommit = 0；
+mysql> set autocommit = 0;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select @@autocommit;
++--------------+
+| @@autocommit |
++--------------+
+|            0 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> insert into bank values(2, 'b', 1000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
+|  2 | b    |  1000 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
+|  2 | b    |  1000 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
++----+------+-------+
+1 row in set (0.00 sec)
+
+mysql> insert into bank values(2, 'b', 1000);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
+|  2 | b    |  1000 |
++----+------+-------+
+2 rows in set (0.01 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
+|  2 | b    |  1000 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> update bank set money = money - 100 where name = 'a';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update bank set money = money + 100 where name = 'b';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   900 |
+|  2 | b    |  1100 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |  1000 |
+|  2 | b    |  1000 |
++----+------+-------+
+2 rows in set (0.01 sec)
+```
+
+事务给我们提供了一个返回的机会
+
+```sql
+mysql> select @@autocommit;
++--------------+
+| @@autocommit |
++--------------+
+|            0 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> set autocommit = 1;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select @@autocommit;
++--------------+
+| @@autocommit |
++--------------+
+|            1 |
++--------------+
+1 row in set (0.00 sec)
+```
+
+##### 6.2.3 手动开启一个事务 begin/start transaction
+
+```sql
+mysql> update bank set money = money - 100 where name = 'a';
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update bank set money = money + 100 where name = 'b';
+Query OK, 1 row affected (0.02 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   900 |
+|  2 | b    |  1100 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+-- 事务没有被撤销
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   900 |
+|  2 | b    |  1100 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+-- 手动开启事务
+mysql> begin;		-- 或 start transaction
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> update bank set money = money - 100 where name = 'a';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update bank set money = money + 100 where name = 'b';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   800 |
+|  2 | b    |  1200 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   900 |
+|  2 | b    |  1100 |
++----+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.01 sec)
+```
+
+事务开启后，一旦提交，就不能回滚。
+
+#### 6.3 事务的四大特征(ACID)
+
+##### 6.3.1 A：原子性——事务是最小单位，不可再分割；
+
+##### 6.3.2 C：一致性——事务要求，在同一事务中的sql语句，必须保证同时成功或同时失败；
+
+##### 6.3.3 I：隔离性——事务A和B之间具有隔离性；
+
+1. read uncommitted; 读未提交的：
+
+2. read committed;     读已提交的
+
+3. repeatable read;     可重复读的（MySQL默认隔离级别）
+
+4. serializable             串行化：事务操作串行。当一个表被一个事务操作时，另一个事务不能对其进行写操作，被阻塞，排队等待，直到前一个事务commit。等待超时也得重新执行。
+
+   > 性能：read uncommitted > read committed > repeatable read > serializable
+   >
+   > 隔离级别越高，性能越差。
+
+如何查询数据库隔离级别：
+
+```sql
+-- mysql 8.0+
+select @@global.transaction_isolation;	-- 系统级别
+select @@transaction_isolation;					-- 会话级别
+
+mysql> select @@global.transaction_isolation;
++--------------------------------+
+| @@global.transaction_isolation |
++--------------------------------+
+| REPEATABLE-READ                |
++--------------------------------+
+1 row in set (0.01 sec)
+
+-- mysql 5.x
+select @@global.tx_isolation;		-- 系统级别
+select @@tx_isolation;					-- 会话级别
+```
+
+如何修改数据库隔离级别:
+
+例：
+
+```sql
+mysql> set session transaction isolation level read uncommitted;	-- 当前会话
+mysql> set global transaction isolation level read uncommitted;	-- 当前系统
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@transaction_isolation;
++-------------------------+
+| @@transaction_isolation |
++-------------------------+
+| READ-UNCOMMITTED        |
++-------------------------+
+1 row in set (0.00 sec)
+
+mysql> start transaction;
+Query OK, 0 rows affected (0.01 sec)
+-- a在b处买800块钱的鞋子
+mysql> update bank set money = money - 800 where name = 'a';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+-- b收到800块钱
+mysql> update bank set money = money + 800 where name = 'b';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+-- b去查帐
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   100 |
+|  2 | b    |  1900 |
++----+------+-------+
+2 rows in set (0.01 sec)
+-- 发货
+-- 晚上请女朋友吃好吃的
+-- 1900
+
+-- a -> rollback;
+mysql> rollback;
+Query OK, 0 rows affected (0.02 sec)
+-- b吃完饭结账，发现钱不够
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   900 |
+|  2 | b    |  1100 |
++----+------+-------+
+2 rows in set (0.01 sec)
+-- 如果两个不同地方都在进行操作。如果事务a开启后，它的数据可以被别的事务读取到。
+-- 这样就会出现“脏读”：一个事务读取到另一个事务没有提交的数据。
+-- 实际开发中不允许脏读的出现。
+```
+
+```sql
+-- 修改隔离级别
+mysql> set session transaction isolation level read committed;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@transaction_isolation;
++-------------------------+
+| @@transaction_isolation |
++-------------------------+
+| READ-COMMITTED          |
++-------------------------+
+1 row in set (0.00 sec)
+
+-- 小张：银行会计
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from bank;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | a    |   900 |
+|  2 | b    |  1100 |
++----+------+-------+
+2 rows in set (0.00 sec)
+-- 小张上厕所
+
+-- 小明
+mysql> start transaction;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into bank values(3, 'c', 100);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> commit;
+Query OK, 0 rows affected (0.02 sec)
+
+-- 小张回来
+mysql> select avg(money) from bank;
++------------+
+| avg(money) |
++------------+
+|   700.0000 |
++------------+
+1 row in set (0.01 sec)
+-- money平均值改变了
+-- 虽然我能读到另一个事务提交的数据，但还是会出现问题：读取同一个表的数据出现前后不一致。
+-- 不可重复读现象：read committed
+```
+
+```sql
+-- 修改隔离级别
+mysql> set session transaction isolation level repeatable read;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@transaction_isolation;
++-------------------------+
+| @@transaction_isolation |
++-------------------------+
+| REPEATABLE-READ         |
++-------------------------+
+1 row in set (0.00 sec)
+-- 幻读：事务a和b同时操作一张表，事务a提交的数据，不能被事务b读到
+```
+
+```sql
+-- 修改隔离级别
+mysql> set session transaction isolation level serializable;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@transaction_isolation;
++-------------------------+
+| @@transaction_isolation |
++-------------------------+
+| SERIALIZABLE            |
++-------------------------+
+1 row in set (0.00 sec)
+```
+
+
+
+##### 6.3.4 D：持久性——事务一旦结束，就不可以回滚。
 
 
 
