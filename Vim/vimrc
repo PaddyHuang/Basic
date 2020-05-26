@@ -1,0 +1,128 @@
+set number
+set cursorline
+set ruler
+set tabstop=4
+set autochdir
+set incsearch
+set hlsearch
+set smartindent
+
+" *********************************************
+" Vundle Plugins Manager  
+" *********************************************
+set nocompatible              " required
+filetype off                  " required 
+   
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()        
+ 
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+ 
+" let Vundle manage Vundle, required
+Plugin 'gmarik/Vundle.vim' 
+Plugin 'scrooloose/nerdtree'
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'kien/ctrlp.vim'
+Plugin 'vim-scripts/indentpython.vim'
+" Add all your plugins here (note older versions of Vundle used Bundle instead of Plugin)
+" All of your Plugins must be added before the following line                 
+call vundle#end()            " required
+filetype plugin indent on    " required
+
+" *********************************************
+" Theme Configure
+" *********************************************
+set t_Co=256
+set background=dark
+colorscheme molokai
+highlight NonText guibg=#060606
+highlight Folded  guibg=#0A0A0A guifg=#9090D0
+let g:Powerline_symbols='fancy'
+let laststatus = 2
+let g:airline_powerline_fonts = 1   " 使用powerline打过补丁的字体
+
+" *********************************************
+" Split Views
+" *********************************************
+set splitbelow
+set splitright
+" shortcuts: 
+" ctrl+l -> Right View
+" ctrl+h -> Left View
+" ctrl+k -> Up View
+" ctrl+j -> Down View
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" *********************************************
+" Fold Setting
+" *********************************************
+" Folding depends on indent
+set foldmethod=indent 
+set foldlevel=99
+" map za to space, which means use space to fold & unfold
+nnoremap <space> za
+
+" *********************************************
+" NERDTree Setting
+" *********************************************
+au vimenter * NERDTree   	" open NERDTree on vim startup
+map <F2> :NERDTreeToggle<CR>	" F2 to on/off NERDTree
+
+" *********************************************
+" YCM
+" *********************************************
+let g:ycm_autoclose_preview_window_after_completion=1
+set runtimepath+=~/.vim/bundle/YouCompleteMe
+autocmd InsertLeave * if pumvisible() == 0|pclose|endif "离开插入模式后自动关闭预览窗口"
+let g:ycm_collect_identifiers_from_tags_files = 1           " 开启 YCM基于标签引擎
+let g:ycm_collect_identifiers_from_comments_and_strings = 1 " 注释与字符串中的内容也用于补全
+let g:syntastic_ignore_files=[".*\.py$"]
+let g:ycm_seed_identifiers_with_syntax = 1                  " 语法关键字补全
+let g:ycm_complete_in_comments = 1
+let g:ycm_confirm_extra_conf = 0                            " 关闭加载.ycm_extra_conf.py提示
+let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']  " 映射按键,没有这个会拦截掉tab, 导致其他插件的tab不能用.
+let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
+let g:ycm_complete_in_comments = 1                          " 在注释输入中也能补全
+let g:ycm_complete_in_strings = 1                           " 在字符串输入中也能补全
+let g:ycm_collect_identifiers_from_comments_and_strings = 1 " 注释和字符串中的文字也会被收入补全
+let g:ycm_global_ycm_extra_conf='~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+let g:ycm_show_diagnostics_ui = 0                           " 禁用语法检查
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"             " 回车即选中当前项
+nnoremap <c-j> :YcmCompleter GoToDefinitionElseDeclaration<CR>     " 跳转到定义处
+let g:ycm_min_num_of_chars_for_completion=2                 " 从第2个键入字符就开始罗列匹配项
+" 默认tab、s-tab和自动补全冲突
+"let g:ycm_key_list_select_completion = ['<TAB>', '<c-n>', '<Down>']
+"let g:ycm_key_list_previous_completion = ['<S-TAB>', '<c-p>', '<Up>']
+let g:ycm_auto_trigger = 1
+
+" *********************************************
+" Encoding
+" *********************************************
+set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
+set termencoding=utf-8
+set encoding=utf-8
+
+" *********************************************
+" Ctrlp
+" *********************************************
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+" Filter ignoring file suffix
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn|pyc)$'
+
+" *********************************************
+" Python coding style: PEP8
+" *********************************************
+au BufNewFile,BufRead *.py set tabstop=4 |set softtabstop=4|set shiftwidth=4|set textwidth=79|set expandtab|set autoindent|set fileformat=unix
+
+au BufNewFile,BufRead *.js, *.html, *.css set tabstop=2|set softtabstop=2|set shiftwidth=2
+
+" *********************************************
+" Sharing clipboard
+" *********************************************
+" set clipboard=unnamed
