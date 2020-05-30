@@ -21,7 +21,7 @@ def Menu():
 			print(info)
 		elif options == '2':
 			print('Local Raspberry Pi launching...')
-			system('ssh pi@192.168.1.21')
+			system('ssh pi@192.168.1.107')
 		elif options == '3':
 			print('Global Raspberry Pi launching...')
 			system('ssh pi@cn-cd-dx.sakurafrp.com -p 37700')
